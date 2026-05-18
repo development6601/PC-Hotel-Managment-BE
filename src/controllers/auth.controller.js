@@ -1,0 +1,69 @@
+const authModel = require("../models/auth.models")
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+async function userRegister(req, res) {
+    try {
+        const { email, password, fullName: { firstName, lastName } } = req.body
+
+        const isExistEmail = await authModel.findOne({ email })
+
+        if (isExistEmail) {
+            return res.status(401).json({
+                message: "Already Exist Email"
+            })
+        }
+
+
+        const user = await authModel.create({
+            fullName: {
+                firstName,
+                lastName
+            },
+            email,
+            password: await bcrypt.hash(password, 10)
+        })
+
+        res.status(200).json({
+            message: "Register Successfully",
+            user
+        })
+
+    } catch (error) {
+        console.log(error);
+
+
+    }
+}
+
+async function userLogin(req, res) {
+    const { email, password } = req.body
+    const isUser = await authModel.findOne({ email })
+    if (!isUser) {
+        return res.status(401).json({
+            message: "Invalid email"
+        })
+    }
+    const isPassword = await bcrypt.compare(password, isUser.password)
+    if (!isPassword) {
+        return res.status(401).json({
+            message: "Invalid Password"
+        })
+    }
+    let token = jwt.sign({ id: isUser._id }, process.env.jWT_secret)
+    res.cookie('token', token)
+    res.status(202).json({
+        message: "Login Successfully",
+        
+    })
+
+}
+
+async function userLogOut(req,res){
+    res.clearCookie('token')
+    return res.status(200).json({
+        message:"Log-out Successfully"
+    })
+}
+
+module.exports = { userRegister,userLogin , userLogOut}
