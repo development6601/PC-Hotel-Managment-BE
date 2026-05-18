@@ -1,6 +1,6 @@
 const express = require('express')
 const { userRegister, userLogin, userLogOut, forgetPassword, uploadImage } = require('../controllers/auth.controller')
-const { validationRegister, loginRegister } = require('../validation/auth.validation')
+// const { validationRegister, loginRegister } = require('../validation/auth.validation')
 const multer = require('multer')
 const path = require('path')
 const authMiddleware = require('../middleware/auth.middleware')
@@ -21,9 +21,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 
-router.post('/register', validationRegister, userRegister)
+router.post('/register', userRegister)
 
-router.post('/login', loginRegister, userLogin)
+router.post('/login', userLogin)
 
 router.post('/logOut', userLogOut)
 
