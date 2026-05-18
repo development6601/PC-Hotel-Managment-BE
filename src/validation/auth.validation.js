@@ -11,7 +11,6 @@ async function validate(req,res,next){
 
 const validationRegister = [
     body('email').isEmail().withMessage('Email is required'),
-    body('fullName').isEmpty().withMessage('fullName Is required'),
     body('password').isNumeric().withMessage("Password must be Number").isLength({min:5}).withMessage("passwword Must be at least 5 number"),
     validate
 ]
@@ -22,6 +21,8 @@ const loginRegister = [
     body('password').isNumeric().withMessage("Password must be Number").isLength({min:5}).withMessage("passwword Must be at least 5 number"),
     validate
 ]
+
+
 
 
 module.exports = {validationRegister ,loginRegister}
