@@ -2,7 +2,8 @@ const cookieParser = require('cookie-parser')
 const express = require('express')
 const authRoutes = require('./routes/auth.routes')
 const customerRoutes = require('./routes/customer.routes')
-const adminRoutes = require('./routes/admin.routes')
+const roomRoutes = require('./routes/room.routes')
+const bookRoutes = require('./routes/booking.routes')
 const cors = require('cors')
 
 const app = express()
@@ -14,9 +15,11 @@ app.use(cors({
 }))
 
 // ---------: Api Routes :----------------------
+
 app.use('/api/auth',authRoutes)
 app.use('/api/customer',customerRoutes)
-app.use('/api/admin',adminRoutes)
+app.use('/api/room',roomRoutes)
+app.use('/api/book',bookRoutes)
  
 
 module.exports = app

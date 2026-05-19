@@ -1,15 +1,17 @@
+// const { validationRegister, loginRegister } = require('../validation/auth.validation')
+
 const express = require('express')
 const { userRegister, userLogin, userLogOut, forgetPassword, uploadImage } = require('../controllers/auth.controller')
-// const { validationRegister, loginRegister } = require('../validation/auth.validation')
+const authMiddleware = require('../middleware/auth.middleware')
+
 const multer = require('multer')
 const path = require('path')
-const authMiddleware = require('../middleware/auth.middleware')
 
 const router = express.Router()
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/uploads/')
+        cb(null, './src/assets/Profile_img')
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname);
