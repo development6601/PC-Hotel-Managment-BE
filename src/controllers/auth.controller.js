@@ -105,5 +105,17 @@ async function uploadImage(req, res) {
 
 }
 
+async function getAllDetail(req,res){
 
-module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage }
+    const user = await authModel.find()
+
+    res.status(200).json({
+        message:{
+            user
+        }
+    })
+
+}
+
+
+module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage,getAllDetail }

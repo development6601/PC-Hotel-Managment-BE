@@ -1,7 +1,7 @@
 // const { validationRegister, loginRegister } = require('../validation/auth.validation')
 
 const express = require('express')
-const { userRegister, userLogin, userLogOut, forgetPassword, uploadImage } = require('../controllers/auth.controller')
+const { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail } = require('../controllers/auth.controller')
 const authMiddleware = require('../middleware/auth.middleware')
 
 const multer = require('multer')
@@ -32,5 +32,7 @@ router.post('/logOut', userLogOut)
 router.post('/forgotPassword', forgetPassword)
 
 router.post('/upload',authMiddleware, upload.single('image'), uploadImage)
+
+router.get('/getAllDetail',getAllDetail)
 
 module.exports = router 
