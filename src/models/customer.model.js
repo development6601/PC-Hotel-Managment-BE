@@ -1,38 +1,38 @@
 const mongoose = require('mongoose')
 
 const customerSchema = new mongoose.Schema({
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'auth'
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'auth'
     },
-    fullName:{
-        firstName:{type:String},
-        lastName:{type:String}
+    fullName: {
+        firstName: { type: String },
+        lastName: { type: String }
     },
-    phoneNumber:{
-        type:Number,
+    phoneNumber: {
+        type: Number,
     },
-    gender:{
-        type:String,
-        enum:['male','female','other'],
-        default:'male'
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other'],
+        default: 'male'
     },
-    email:{type:String},
-    address:{
-        type:String
+    email: { type: String },
+    address: {
+        type: String
     },
-    idProofNumber:{
-        type:Number
+    idProofNumber: {
+        type: Number
     },
-    status:{
-        type:String,
-        enum:['active','inActive'],
-        default:'inActive'
+    status: {
+        type: String,
+        enum: ['active', 'inActive'],
+        default: 'inActive'
     }
 
 
 })
 
-const customerModel = mongoose.model('customer',customerSchema)
+const customerModel = mongoose.model('customer', customerSchema)
 
 module.exports = customerModel

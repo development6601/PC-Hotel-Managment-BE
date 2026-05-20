@@ -1,9 +1,9 @@
-const {body,validationResult} = require('express-validator')
-async function validate(req,res,next){
+const { body, validationResult } = require('express-validator')
+async function validate(req, res, next) {
     const error = validationResult(req)
-    if(!error.isEmpty()){
+    if (!error.isEmpty()) {
         return res.status(404).json({
-            error:error.array()
+            error: error.array()
         })
     }
     next()
@@ -11,18 +11,18 @@ async function validate(req,res,next){
 
 const validationRegister = [
     body('email').isEmail().withMessage('Email is required'),
-    body('password').isNumeric().withMessage("Password must be Number").isLength({min:5}).withMessage("passwword Must be at least 5 number"),
+    body('password').isNumeric().withMessage("Password must be Number").isLength({ min: 5 }).withMessage("passwword Must be at least 5 number"),
     validate
 ]
 
 const loginRegister = [
     body('email').isEmail().withMessage('Email is Required'),
     body('fullName').isEmpty().withMessage('fullName Is required'),
-    body('password').isLength({min:5}).withMessage("passwword Must be at least 5 number"),
+    body('password').isLength({ min: 5 }).withMessage("passwword Must be at least 5 number"),
     validate
 ]
 
 
 
 
-module.exports = {validationRegister ,loginRegister}
+module.exports = { validationRegister, loginRegister }

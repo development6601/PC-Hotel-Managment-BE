@@ -1,12 +1,36 @@
 require('dotenv').config()
-const app = require("./src/app");
+const express = require('express')
+const cookieParser = require('cookie-parser')
+const cors = require('cors')
+
+// ---------------:Routes:--------------------------------------
+const authRoutes = require('./src/routes/auth.routes')
+const customerRoutes = require('./src/routes/customer.routes')
+const roomRoutes = require('./src/routes/room.routes')
+const bookRoutes = require('./src/routes/booking.routes')
+
 const ConnectToDb = require('./src/database/connection');
+ConnectToDb()
+
+const app = express()
+app.use(express.json())
+app.use(cookieParser())
+app.use(cors({
+    origin: ["http://localhost:5173"],
+    credentials: true
+}))
+
+// ---------: Api Routes :----------------------
+
+app.use('/api/auth', authRoutes)
+app.use('/api/customer', customerRoutes)
+app.use('/api/room', roomRoutes)
+app.use('/api/book', bookRoutes)
 
 
 const port = process.env.port
-ConnectToDb()
 
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);
-
+    
 })

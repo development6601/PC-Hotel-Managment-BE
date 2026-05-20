@@ -29,25 +29,16 @@ async function createBooking(req, res) {
         const checkOut = new Date(checkOutDate);
         checkOut.setDate(checkOut.getDate() + 1);
 
-
-        // const checkIn = new Date(checkInDate);
-        // const checkOut = new Date(checkOutDate);
-
         if (checkIn >= checkOut) {
             return res.status(400).json({
                 message: "Invalid Date",
             });
         }
-
-
         if (Number(guestCount) > room.totalMember) {
             return res.status(400).json({
                 message: `Only ${room.totalMember} members allowed`,
             });
         }
-
-
-
         const alreadyBooked = await bookingModel.findOne({
             roomId: id,
             bookingStatus: { $ne: "cancelled" },
@@ -58,11 +49,9 @@ async function createBooking(req, res) {
         if (alreadyBooked) {
             return res.status(400).json({ message: "Room already booked for selected dates" });
         }
-
         const totalDays = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
 
         const totalAmount = totalDays * room.price;
-
         const booking = await bookingModel.create({
             userId: customer._id,
             userId: req.user._id,
@@ -75,9 +64,7 @@ async function createBooking(req, res) {
         });
 
         customer.status = "active";
-
         await customer.save();
-
         res.status(201).json({
             message: "Booking Suceessfully",
             booking,
@@ -88,60 +75,72 @@ async function createBooking(req, res) {
 }
 
 async function cancelBooking(req, res) {
-    let { id } = req.params;
-    let userId = req.user._id
+    try {
+        let { id } = req.params;
+        let userId = req.user._id
 
-    let user = await customerModel.find({ userId: userId })
+        let user = await customerModel.find({ userId: userId })
 
-    const booking = await bookingModel.findById(id);
+        const booking = await bookingModel.findById(id);
 
-    booking.bookingStatus = "cancelled";
-    await booking.save();
+        booking.bookingStatus = "cancelled";
+        await booking.save();
 
-    user[0].status = 'inActive';
-    await user[0].save()
+        user[0].status = 'inActive';
+        await user[0].save()
+
+        const activeBooking = await bookingModel.findOne({
+            roomId: booking.roomId,
+            bookingStatus: { $ne: "cancelled" },
+        });
+
+        if (!activeBooking) {
+            await roomModel.findByIdAndUpdate(booking.roomId, { status: "available" });
+        }
+        res.status(200).json({
+            message: "Booking Cancel Successfully",
+        });
+    } catch (error) {
+        console.log(error.message);
 
 
-
-
-    const activeBooking = await bookingModel.findOne({
-        roomId: booking.roomId,
-        bookingStatus: { $ne: "cancelled" },
-    });
-
-    if (!activeBooking) {
-        await roomModel.findByIdAndUpdate(booking.roomId, { status: "available" });
     }
-
-    res.status(200).json({
-        message: "Booking Cancel Successfully",
-    });
 }
 
 async function getMyBookings(req, res) {
-    const user = req.user._id
+    try {
+        const user = req.user._id
+        const bookings = await bookingModel.find({ userId: user }).populate('userId roomId')
 
-    const bookings = await bookingModel.find({ userId: user }).populate('userId roomId')
+        res.status(400).json({
+            bookings
+        });
+    } catch (error) {
+        console.log(error.message);
 
-    res.status(400).json({
-        bookings
-    });
+    }
 }
 
 async function getAllBookings(req, res) {
 
-    const { role } = req.user
-    if (role !== 'Admin') {
+    try {
+
+        const { role } = req.user
+        if (role !== 'Admin') {
+            res.status(200).json({
+                message: "Only Admin Can Changes",
+            })
+
+        }
+        const bookings = await bookingModel.find()
         res.status(200).json({
-            message: "Only Admin Can Changes",
-        })
+            bookings
+        });
+    } catch (error) {
+        console.log(error.message);
 
 
     }
-    const bookings = await bookingModel.find()
-    res.status(200).json({
-        bookings
-    });
 }
 
 async function checkInBooking(req, res) {
@@ -152,8 +151,6 @@ async function checkInBooking(req, res) {
             res.status(400).json({
                 message: "Only Admin Can Changes",
             })
-
-
         }
 
         const booking = await bookingModel.findByIdAndUpdate(req.params.id, { bookingStatus: "checkedIn" }, { new: true });
@@ -162,28 +159,29 @@ async function checkInBooking(req, res) {
             message: "Check-In Successfuly",
             booking
         })
-
-
     } catch (error) {
         console.log(error.message);
     }
 }
 
 async function checkOutBooking(req, res) {
-    let { role } = req.user
+    try {
+        let { role } = req.user
 
-    if (role !== "Admin") {
-        res.status(400).json({ message: "Only Admin Can changes" });
+        if (role !== "Admin") {
+            res.status(400).json({ message: "Only Admin Can changes" });
+
+        }
+        const booking = await bookingModel.findByIdAndUpdate(req.params.id, { bookingStatus: "checkedOut" }, { new: true });
+
+        await roomModel.findByIdAndUpdate(booking.roomId, { status: "available" });
+
+        res.status(200).json({ message: "Check-out successful", booking });
+    } catch (error) {
+        console.log(error.message);
+
 
     }
-    const booking = await bookingModel.findByIdAndUpdate(req.params.id, { bookingStatus: "checkedOut" }, { new: true });
-
-    await roomModel.findByIdAndUpdate(booking.roomId, { status: "available" });
-
-    res.status(200).json({ message: "Check-out successful", booking });
-
-
-
 }
 
 module.exports = {

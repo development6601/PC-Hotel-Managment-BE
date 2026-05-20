@@ -32,11 +32,11 @@ router.post('/logOut', userLogOut)
 
 router.post('/forgotPassword', forgetPassword)
 
-router.post('/upload',authMiddleware, upload.single('image'), uploadImage)
+router.post('/upload', authMiddleware, upload.single('image'), uploadImage)
 
-router.get('/getAllDetail',getAllDetail)
+router.get('/getAllDetail', getAllDetail)
 
 
-router.get('/AdminDashoard',authMiddleware,adminDashboard)
+router.get('/AdminDashoard', authMiddleware, adminDashboard)
 
 module.exports = router 

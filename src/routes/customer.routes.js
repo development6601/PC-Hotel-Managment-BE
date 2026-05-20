@@ -4,6 +4,6 @@ const { customerDetail } = require('../controllers/customer.controller')
 
 const router = express()
 
-router.post('/customerDetail',authMiddleware,customerDetail)
+router.post('/customerDetail', authMiddleware, customerDetail)
 
 module.exports = router

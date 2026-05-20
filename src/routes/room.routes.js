@@ -20,13 +20,13 @@ const upload = multer({ storage: storage })
 
 const router = express.Router()
 
-router.post('/createRoom',upload.single('image'),createRoom)
+router.post('/createRoom', upload.single('image'), createRoom)
 
-router.get('/getAllRoom',getALLRoom)
+router.get('/getAllRoom', getALLRoom)
 
-router.delete('/deleteRoom/:id',deleteRoombyId)
+router.delete('/deleteRoom/:id', deleteRoombyId)
 
-router.put('/updateRoom/:id',upload.single('image'),updateRoom)
+router.put('/updateRoom/:id', upload.single('image'), updateRoom)
 
 
 module.exports = router
