@@ -3,135 +3,194 @@ const bookingModel = require("../models/booking.model")
 const roomModel = require("../models/room.models")
 const customerModel = require("../models/customer.model")
 
-async function createBooking(req,res){
-    const {id} = req.params
-    const customer = req.user
-    const {checkInDate,checkOutDate,guestCount} = req.body 
-    const room = await roomModel.findById(id)
-    
-    
-    let custo = await customerModel.findOne({email:customer.email})
-    
-    
+async function createBooking(req, res) {
+    try {
+        const { id } = req.params;
 
-    if(!custo){
-        return res.status(401).json({
-            message:"Detail is Required"
-        })
+        const { checkInDate, checkOutDate, guestCount } = req.body;
+
+        const room = await roomModel.findById(id);
+
+        if (room.status === "maintenance") {
+            return res.status(400).json({ message: "Room is under maintenance" });
+        }
+
+        const customer = await customerModel.findOne({ userId: req.user._id });
+
+        if (!customer) {
+            return res.status(400).json({
+                message: "Customer detail required first"
+            });
+        }
+
+        const checkIn = new Date(checkInDate);
+        checkIn.setDate(checkIn.getDate() + 1);
+
+        const checkOut = new Date(checkOutDate);
+        checkOut.setDate(checkOut.getDate() + 1);
+
+
+        // const checkIn = new Date(checkInDate);
+        // const checkOut = new Date(checkOutDate);
+
+        if (checkIn >= checkOut) {
+            return res.status(400).json({
+                message: "Invalid Date",
+            });
+        }
+
+
+        if (Number(guestCount) > room.totalMember) {
+            return res.status(400).json({
+                message: `Only ${room.totalMember} members allowed`,
+            });
+        }
+
+
+
+        const alreadyBooked = await bookingModel.findOne({
+            roomId: id,
+            bookingStatus: { $ne: "cancelled" },
+            checkInDate: { $lt: checkOut },
+            checkOutDate: { $gt: checkIn },
+        });
+
+        if (alreadyBooked) {
+            return res.status(400).json({ message: "Room already booked for selected dates" });
+        }
+
+        const totalDays = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+        const totalAmount = totalDays * room.price;
+
+        const booking = await bookingModel.create({
+            userId: customer._id,
+            userId: req.user._id,
+            roomId: id,
+            checkInDate: checkIn,
+            checkOutDate: checkOut,
+            guestCount,
+            totalDays,
+            totalAmount,
+        });
+
+        customer.status = "active";
+
+        await customer.save();
+
+        res.status(201).json({
+            message: "Booking Suceessfully",
+            booking,
+        });
+    } catch (error) {
+        console.log(error.message);
     }
-    
-    
-    
-   
-    
-   
-
-    if(guestCount>room.totalMember){
-        return res.status(400).json({
-            message:`you only Selected less than ${room.totalMember} member`
-        })
-    }    
-    
-    let checkIn = new Date(checkInDate)
-    let checkOut = new Date(checkOutDate)
-
-    let daydiff = Math.abs(checkIn - checkOut)
-    const Days = daydiff / (1000 * 60 * 60 * 24);
-
-    if(checkIn>checkOut){
-        return res.status(400).json({
-            message:"Invalid Date"
-        })
-    }
-
-    let Amount = room.price * Days
-
-    const BookingDetail = await bookingModel.create({
-        customerId:customer._id,
-        roomId:id,
-        checkInDate,
-        checkOutDate,
-        guestCount,
-        TotalDay:Days,
-        TotalAMount:Amount
-    })
-
-    room.status = 'active',
-    custo.status = 'active'
-
-    custo.save()
-    room.save()
-
-
-    
-
-
-
-    res.status(201).json({
-        message:"Booking Suceessfully",
-        BookingDetail
-    })
-
-
 }
 
+async function cancelBooking(req, res) {
+    let { id } = req.params;
+    let userId = req.user._id
 
-async function cancelBooking(req,res){
-    let {id} = req.params
-    let customer = req.user
+    let user = await customerModel.find({ userId: userId })
 
-    let room = await roomModel.findById(id)
-    let custo = await customerModel.findOne({email:customer.email})
+    const booking = await bookingModel.findById(id);
+
+    booking.bookingStatus = "cancelled";
+    await booking.save();
+
+    user[0].status = 'inActive';
+    await user[0].save()
 
 
-    room.status = 'inActive'
-    custo.status = 'inActive'
-    
-    room.save()
-    custo.save()
+
+
+    const activeBooking = await bookingModel.findOne({
+        roomId: booking.roomId,
+        bookingStatus: { $ne: "cancelled" },
+    });
+
+    if (!activeBooking) {
+        await roomModel.findByIdAndUpdate(booking.roomId, { status: "available" });
+    }
 
     res.status(200).json({
-        message:"Booking Cancel Successfully"
-    })
+        message: "Booking Cancel Successfully",
+    });
 }
 
-async function deleteBooking(req,res){
+async function getMyBookings(req, res) {
+    const user = req.user._id
 
-    const {id} = req.params
-    const bookingDetail = await bookingModel.findById(id)
+    const bookings = await bookingModel.find({ userId: user }).populate('userId roomId')
 
-    const customer = await customerModel.findOne({userId:bookingDetail.customerId})
+    res.status(400).json({
+        bookings
+    });
+}
 
-    const room = await roomModel.findOne({_id:bookingDetail.roomId})
+async function getAllBookings(req, res) {
 
-    customer.status = 'inActive'
-    room.status = 'inActive'
+    const { role } = req.user
+    if (role !== 'Admin') {
+        res.status(200).json({
+            message: "Only Admin Can Changes",
+        })
 
-    customer.save()
-    room.save()
 
-    const deletedBooking = await bookingModel.findByIdAndDelete(id)
-
+    }
+    const bookings = await bookingModel.find()
     res.status(200).json({
-        message:"Deleted Suceessfully"
-    })
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-
+        bookings
+    });
 }
 
+async function checkInBooking(req, res) {
+    try {
+
+        const { role } = req.user
+        if (role !== 'Admin') {
+            res.status(400).json({
+                message: "Only Admin Can Changes",
+            })
+
+
+        }
+
+        const booking = await bookingModel.findByIdAndUpdate(req.params.id, { bookingStatus: "checkedIn" }, { new: true });
+
+        res.status(200).json({
+            message: "Check-In Successfuly",
+            booking
+        })
+
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+async function checkOutBooking(req, res) {
+    let { role } = req.user
+
+    if (role !== "Admin") {
+        res.status(400).json({ message: "Only Admin Can changes" });
+
+    }
+    const booking = await bookingModel.findByIdAndUpdate(req.params.id, { bookingStatus: "checkedOut" }, { new: true });
+
+    await roomModel.findByIdAndUpdate(booking.roomId, { status: "available" });
+
+    res.status(200).json({ message: "Check-out successful", booking });
+
+
+
+}
 
 module.exports = {
     createBooking,
     cancelBooking,
-    deleteBooking
+    getAllBookings,
+    getMyBookings,
+    checkInBooking,
+    checkOutBooking
 }

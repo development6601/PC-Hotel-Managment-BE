@@ -30,4 +30,5 @@ async function customerDetail(req, res) {
     })
 }
 
+
 module.exports = { customerDetail }

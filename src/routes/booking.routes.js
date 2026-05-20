@@ -1,13 +1,19 @@
 const express = require('express')
-const { createBooking, deleteBooking, cancelBooking } = require('../controllers/booking.controller')
+const { createBooking, cancelBooking, getMyBookings, getAllBookings, checkInBooking, checkOutBooking } = require('../controllers/booking.controller')
 const authMiddleware = require('../middleware/auth.middleware')
 
 const router = express.Router()
 
-router.post('/bookRoom/:id',authMiddleware,createBooking)
 
-router.delete('/cancelBooking/:id',authMiddleware,cancelBooking)
+router.post('/bookRoom/:id', authMiddleware, createBooking)
 
-router.delete('/deleteBooking/:id',authMiddleware,deleteBooking)
+router.patch('/cancelBooking/:id', authMiddleware, cancelBooking)
+
+router.get("/myBookings", authMiddleware, getMyBookings);
+router.get("/allBookings", authMiddleware, getAllBookings);
+
+router.patch("/checkIn/:id", authMiddleware, checkInBooking);
+
+router.patch("/checkOut/:id", authMiddleware, checkOutBooking);
 
 module.exports = router

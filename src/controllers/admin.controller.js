@@ -1,18 +1,51 @@
+const bookingModel = require("../models/booking.model");
 const customerModel = require("../models/customer.model");
+const roomModel = require("../models/room.models");
 
-async function statusInfo(req,res){
+
+async function adminDashboard(req, res) {
+
     try {
-        const userStatus = await customerModel.find({status:'Active'})
+
+        const today = new Date();
+
+        // ------------: Total Rooms : --------------------------------
+        const totalRooms = await roomModel.countDocuments();
+
+        // ------------- : Currently Book Room : --------------------------
+        const bookedRooms = await bookingModel.countDocuments({
+            bookingStatus: { $in: ["confirmed", "checkedIn"] },
+            checkInDate: { $lte: today },
+            checkOutDate: { $gt: today }
+        });
+
+
+        // ----------- : Available Room : ---------------------------------
+
+        const maintenanceRooms = await roomModel.countDocuments({status: "maintenance" });
+
+        const availableRooms = totalRooms - bookedRooms - maintenanceRooms;
+
+        // ------------- : Total Booking : --------------------------
+
+        const totalBookings = await bookingModel.countDocuments();
+
 
         res.status(200).json({
-            message:"Active Customer Detail",
-            userStatus : userStatus.length
-        })
+            totalRooms,
+            availableRooms,
+            bookedRooms,
+            totalBookings,
+           
+        });
+
     } catch (error) {
-        console.log(error.message);
-        
-        
+
+        res.status(500).json({
+            message: error.message
+        });
+
     }
 }
 
-module.exports = {statusInfo}
+module.exports = {adminDashboard}

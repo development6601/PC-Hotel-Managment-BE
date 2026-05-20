@@ -10,7 +10,7 @@ const customerSchema = new mongoose.Schema({
         lastName:{type:String}
     },
     phoneNumber:{
-        type:String,
+        type:Number,
     },
     gender:{
         type:String,
@@ -22,7 +22,7 @@ const customerSchema = new mongoose.Schema({
         type:String
     },
     idProofNumber:{
-        type:String
+        type:Number
     },
     status:{
         type:String,

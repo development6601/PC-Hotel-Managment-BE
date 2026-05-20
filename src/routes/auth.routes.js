@@ -6,6 +6,7 @@ const authMiddleware = require('../middleware/auth.middleware')
 
 const multer = require('multer')
 const path = require('path')
+const { adminDashboard } = require('../controllers/admin.controller')
 
 const router = express.Router()
 
@@ -34,5 +35,8 @@ router.post('/forgotPassword', forgetPassword)
 router.post('/upload',authMiddleware, upload.single('image'), uploadImage)
 
 router.get('/getAllDetail',getAllDetail)
+
+
+router.get('/AdminDashoard',authMiddleware,adminDashboard)
 
 module.exports = router 

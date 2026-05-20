@@ -50,7 +50,10 @@ async function userLogin(req, res) {
         })
     }
 
-    let token = jwt.sign({ id: isUser._id }, process.env.jWT_secret)
+    let token = jwt.sign({
+        userId: isUser._id,
+        email: isUser._id,
+    }, process.env.jWT_secret)
     res.cookie('token', token)
     res.status(202).json({
         message: "Login Successfully",
@@ -75,10 +78,6 @@ async function forgetPassword(req, res) {
             message: "Invalid email"
         })
     }
-
-
-
-
 
     isUser.password = await bcrypt.hash(newPassword, 10)
     isUser.save()
