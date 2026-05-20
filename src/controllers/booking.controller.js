@@ -127,7 +127,7 @@ async function getAllBookings(req, res) {
 
         const { role } = req.user
         if (role !== 'Admin') {
-            res.status(200).json({
+            return res.status(200).json({
                 message: "Only Admin Can Changes",
             })
 
@@ -148,7 +148,7 @@ async function checkInBooking(req, res) {
 
         const { role } = req.user
         if (role !== 'Admin') {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "Only Admin Can Changes",
             })
         }
@@ -184,11 +184,53 @@ async function checkOutBooking(req, res) {
     }
 }
 
+async function todayChecking(req, res) {
+    try {
+        const { role } = req.user
+        if (role !== 'Admin') {
+            return res.status(400).json({
+                message: "Only Admin Can Changes",
+            })
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 2);
+
+        const bookings = await bookingModel.find({
+            status: "CONFIRMED",
+            checkInDate: {
+                $gte: today,
+                $lt: tomorrow
+            }
+        }).populate("userID", "fullName email phone").populate("roomID", "roomNumber roomType");
+
+        if (bookings.length === 0) {
+            return res.status(200).json({
+                message: "No check-ins scheduled for today.",
+                bookings: []
+            });
+        }
+
+        return res.status(200).json({
+            message: "Today's check-ins fetched successfully.",
+            bookings
+        });
+
+    } catch (error) {
+        console.log(error.message);
+
+    }
+
+}
+
 module.exports = {
     createBooking,
     cancelBooking,
     getAllBookings,
     getMyBookings,
     checkInBooking,
-    checkOutBooking
+    checkOutBooking,
+    todayChecking
 }

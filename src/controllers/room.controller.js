@@ -4,7 +4,7 @@ async function createRoom(req, res) {
     try {
         const { role } = req.user
         if (role !== 'Admin') {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "Only Admin Can Changes",
             })
         }
@@ -42,7 +42,7 @@ async function getALLRoom(req, res) {
     try {
         const { role } = req.user
         if (role !== 'Admin') {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "Only Admin Can Changes",
             })
 
@@ -67,7 +67,7 @@ async function deleteRoombyId(req, res) {
     try {
         const { role } = req.user
         if (role !== 'Admin') {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "Only Admin Can Changes",
             })
         }
@@ -87,7 +87,7 @@ async function updateRoom(req, res) {
     try {
         const { role } = req.user
         if (role !== 'Admin') {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "Only Admin Can Changes",
             })
         }
