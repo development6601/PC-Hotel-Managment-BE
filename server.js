@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+const {rateLimit} = require('express-rate-limit')
 
 // ---------------:Routes:--------------------------------------
 const authRoutes = require('./src/routes/auth.routes')
@@ -13,6 +14,16 @@ const ConnectToDb = require('./src/database/connection');
 ConnectToDb()
 
 const app = express()
+
+const limiter = rateLimit({
+    windowMs:5*60*1000,
+    limit:50,
+    message: 'Too many requests, please try again later.',
+    standardHeaders:'draft-8',
+    legacyHeaders:false
+})
+
+app.use(limiter)
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
