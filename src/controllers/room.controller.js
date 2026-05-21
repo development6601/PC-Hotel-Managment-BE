@@ -40,20 +40,11 @@ async function createRoom(req, res) {
 
 async function getALLRoom(req, res) {
     try {
-        const { role } = req.user
-        if (role !== 'Admin') {
-            return res.status(400).json({
-                message: "Only Admin Can Changes",
-            })
-
-
-        }
+       
         const room = await roomModel.find()
 
         res.status(200).json({
-            message: {
-                room
-            }
+           room
         })
     } catch (error) {
         console.log(error.message);
