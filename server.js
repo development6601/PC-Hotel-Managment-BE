@@ -3,6 +3,7 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const {rateLimit} = require('express-rate-limit')
+const path = require('path')
 
 // ---------------:Routes:--------------------------------------
 const authRoutes = require('./src/routes/auth.routes')
@@ -27,9 +28,11 @@ app.use(limiter)
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: "http://localhost:5173",
     credentials: true
 }))
+
+
 
 // ---------: Api Routes :----------------------
 

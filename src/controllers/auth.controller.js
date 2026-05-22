@@ -54,7 +54,14 @@ async function userLogin(req, res) {
     res.cookie('token', token)
     res.status(202).json({
         message: "Login Successfully",
-        token
+        token,
+        user:{
+            firstName:isUser.fullName.firstName,
+            lastName:isUser.fullName.lastName,
+            email:isUser.email,
+            role:isUser.role,
+            profileImg:isUser.profileImg
+        }
     })
     } catch (error) {
         console.log(error.message);
@@ -135,5 +142,14 @@ async function getAllDetail(req, res) {
     }
 }
 
+async function myInfo(req,res){
+    const user = req.user
 
-module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail }
+    return res.status(200).json({
+        user
+    })
+    
+}
+
+
+module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail ,myInfo}
