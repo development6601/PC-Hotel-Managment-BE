@@ -33,40 +33,40 @@ async function userRegister(req, res) {
 async function userLogin(req, res) {
     try {
         const { email, password } = req.body
-    const isUser = await authModel.findOne({ email })
-    if (!isUser) {
-        return res.status(401).json({
-            message: "Invalid email"
-        })
-    }
-    const isPassword = await bcrypt.compare(password, isUser.password)
-    if (!isPassword) {
-        return res.status(401).json({
-            message: "Invalid Password"
-        })
-    }
-
-    let token = jwt.sign({
-        userId: isUser._id,
-        email: isUser._id,
-    }, process.env.jWT_secret)
-
-    res.cookie('token', token)
-    res.status(202).json({
-        message: "Login Successfully",
-        token,
-        user:{
-            firstName:isUser.fullName.firstName,
-            lastName:isUser.fullName.lastName,
-            email:isUser.email,
-            role:isUser.role,
-            profileImg:isUser.profileImg
+        const isUser = await authModel.findOne({ email })
+        if (!isUser) {
+            return res.status(401).json({
+                message: "Invalid email"
+            })
         }
-    })
+        const isPassword = await bcrypt.compare(password, isUser.password)
+        if (!isPassword) {
+            return res.status(401).json({
+                message: "Invalid Password"
+            })
+        }
+
+        let token = jwt.sign({
+            userId: isUser._id,
+            email: isUser._id,
+        }, process.env.jWT_secret, { expiresIn: '1d' })
+
+        res.cookie('token', token)
+        res.status(202).json({
+            message: "Login Successfully",
+            token,
+            user: {
+                firstName: isUser.fullName.firstName,
+                lastName: isUser.fullName.lastName,
+                email: isUser.email,
+                role: isUser.role,
+                profileImg: isUser.profileImg
+            }
+        })
     } catch (error) {
         console.log(error.message);
-        
-        
+
+
     }
 
 }
@@ -142,14 +142,14 @@ async function getAllDetail(req, res) {
     }
 }
 
-async function myInfo(req,res){
+async function myInfo(req, res) {
     const user = req.user
 
     return res.status(200).json({
         user
     })
-    
+
 }
 
 
-module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail ,myInfo}
+module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail, myInfo }

@@ -40,11 +40,11 @@ async function createRoom(req, res) {
 
 async function getALLRoom(req, res) {
     try {
-       
+
         const room = await roomModel.find()
 
         res.status(200).json({
-           room
+            room
         })
     } catch (error) {
         console.log(error.message);
@@ -116,9 +116,53 @@ async function updateRoom(req, res) {
     }
 }
 
+async function roomIsAvailable(req, res) {
+    try {
+        const { role } = req.user
+
+        if (role !== 'Admin') {
+            return res.status(400).json({
+                message: "Only Admin Can Access this"
+            })
+        }
+        const { checkInDate, checkOutDate, guestcount } = req.body
+
+        const checkIn = new Date(checkInDate);
+
+
+        checkIn.setDate(checkIn.getDate() + 1);
+
+        const checkOut = new Date(checkOutDate);
+        checkOut.setDate(checkOut.getDate() + 1);
+
+        if (checkIn >= checkOut) {
+            return res.status(400).json({
+                message: "Invalid Date",
+            });
+        }
+        else {
+            let guest = Number(guestcount) % 4
+            let roomDetail = await roomModel.find({ status: 'available' })
+            let room = roomDetail.filter(data => data.totalMember >= Number(guest))
+
+            res.status(200).json({
+                message: "fetch Successfully",
+                room
+            })
+        }
+
+
+    } catch (error) {
+        console.log(error.message);
+
+
+    }
+}
+
 module.exports = {
     createRoom,
     getALLRoom,
     deleteRoombyId,
     updateRoom,
+    roomIsAvailable
 }
