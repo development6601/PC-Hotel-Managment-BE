@@ -20,11 +20,11 @@ const bookingSchema = new mongoose.Schema(
         guestCount: {
             type: String,
         },
-        TotalDay: {
+        totalDay: {
             type: String,
         },
-        TotalAMount: {
-            type: String,
+        totalAmount: {
+            type: Number,
         },
         bookingStatus: {
             type: String,

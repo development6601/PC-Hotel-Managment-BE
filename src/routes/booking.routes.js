@@ -9,7 +9,8 @@ router.post('/bookRoom/:id', authMiddleware, createBooking)
 
 router.patch('/cancelBooking/:id', authMiddleware, cancelBooking)
 
-router.get("/myBookings", authMiddleware, getMyBookings);
+router.get("/myBooking", authMiddleware, getMyBookings);
+
 router.get("/allBookings", authMiddleware, getAllBookings);
 
 router.patch("/checkIn/:id", authMiddleware, checkInBooking);

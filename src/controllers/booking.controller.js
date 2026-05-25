@@ -59,8 +59,8 @@ async function createBooking(req, res) {
             checkInDate: checkIn,
             checkOutDate: checkOut,
             guestCount,
-            totalDays,
-            totalAmount,
+            totalDay:totalDays,
+            totalAmount:totalAmount
         });
 
         customer.status = "active";
@@ -110,9 +110,11 @@ async function cancelBooking(req, res) {
 async function getMyBookings(req, res) {
     try {
         const user = req.user._id
-        const bookings = await bookingModel.find({ userId: user }).populate('userId roomId')
+    
+        
+        const bookings = await bookingModel.find({ userId: user }).populate('roomId')
 
-        res.status(400).json({
+        res.status(200).json({
             bookings
         });
     } catch (error) {
@@ -132,7 +134,7 @@ async function getAllBookings(req, res) {
             })
 
         }
-        const bookings = await bookingModel.find()
+        const bookings = await bookingModel.find().populate('userId roomId')
         res.status(200).json({
             bookings
         });

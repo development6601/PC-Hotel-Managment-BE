@@ -1,42 +1,68 @@
+const roomModel = require("../models/room.models");
 const bookingModel = require("../models/booking.model");
 const customerModel = require("../models/customer.model");
-const roomModel = require("../models/room.models");
-
 
 async function adminDashboard(req, res) {
-
     try {
         const today = new Date();
-        
-        // ------------: Total Rooms : --------------------------------
+
+        // ROOMS
         const totalRooms = await roomModel.countDocuments();
-        
-        // ------------- : Currently Book Room : --------------------------
+
+        const maintenanceRooms = await roomModel.countDocuments({
+            status: "maintenance",
+        });
+
+        // CURRENT BOOKED ROOMS
         const bookedRooms = await bookingModel.countDocuments({
             bookingStatus: { $in: ["confirmed", "checkedIn"] },
             checkInDate: { $lte: today },
-            checkOutDate: { $gt: today }
+            checkOutDate: { $gt: today },
         });
-        
-        // ----------- : Available Room : ---------------------------------
-        const maintenanceRooms = await roomModel.countDocuments({status: "maintenance" });
 
         const availableRooms = totalRooms - bookedRooms - maintenanceRooms;
-       
-        // ------------- : Total Booking : --------------------------
 
+        // CUSTOMERS
+        const totalCustomers = await customerModel.countDocuments();
+
+        // BOOKINGS
         const totalBookings = await bookingModel.countDocuments();
+
+        const activeBookings = await bookingModel.countDocuments({
+            bookingStatus: "confirmed",
+        });
+
+        const cancelledBookings = await bookingModel.countDocuments({
+            bookingStatus: "cancelled",
+        });
+
+        const checkedIn = await bookingModel.countDocuments({
+            bookingStatus: "checkedIn",
+        });
+
+        const checkedOut = await bookingModel.countDocuments({
+            bookingStatus: "checkedOut",
+        });
+
         res.status(200).json({
             totalRooms,
             availableRooms,
             bookedRooms,
+            maintenanceRooms,
+
+            totalCustomers,
+
             totalBookings,
-           
+            activeBookings,
+            cancelledBookings,
+            checkedIn,
+            checkedOut,
         });
     } catch (error) {
-        res.status(500).json({message: error.message});
-
+        res.status(500).json({
+            message: error.message,
+        });
     }
 }
 
-module.exports = {adminDashboard}
+module.exports = { adminDashboard };
