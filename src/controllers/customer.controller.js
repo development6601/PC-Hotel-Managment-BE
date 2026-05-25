@@ -69,8 +69,8 @@ async function updateCustomer(req, res) {
     const image = req.file;
 
     // split full name
-    // const nameParts = fullName.trim().split(" ");
-    const nameParts = fullName
+    const nameParts = fullName.trim().split(" ");
+    
 
     const firstName = nameParts[0];
 
