@@ -1,9 +1,10 @@
 const express = require('express')
 const { createRoom, getALLRoom, deleteRoombyId, updateRoom, roomIsAvailable } = require('../controllers/room.controller')
 
+const authMiddleware = require('../middleware/auth.middleware')
+
 const multer = require('multer')
 const path = require('path')
-const authMiddleware = require('../middleware/auth.middleware')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -21,7 +22,7 @@ const upload = multer({ storage: storage })
 
 const router = express.Router()
 
-router.post('/createRoom', upload.single('image'), createRoom)
+router.post('/createRoom', authMiddleware ,upload.single('image'), createRoom)
 
 router.get('/getAllRoom', getALLRoom)
 

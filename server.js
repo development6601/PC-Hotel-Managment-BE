@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
-const {rateLimit} = require('express-rate-limit')
+const { rateLimit } = require('express-rate-limit')
 const path = require('path')
 
 // ---------------:Routes:--------------------------------------
@@ -17,21 +17,23 @@ ConnectToDb()
 const app = express()
 
 const limiter = rateLimit({
-    windowMs:5*60*1000,
-    limit:100,
+    windowMs: 5 * 60 * 1000,
+    limit: 100,
     message: 'Too many requests, please try again later.',
-    standardHeaders:'draft-8',
-    legacyHeaders:false
+    standardHeaders: true,
+    legacyHeaders: false
 })
 
-app.use(limiter)
-app.use(express.json())
-app.use(cookieParser())
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }))
+app.use(express.json())
+app.use(cookieParser())
+app.use(limiter)
 
+app.use('/room_img', express.static(path.join(__dirname, 'src/assets/room_img')));
+app.use('/profile_img', express.static(path.join(__dirname, 'src/assets/profile_img')));
 
 
 // ---------: Api Routes :----------------------
@@ -46,5 +48,5 @@ const port = process.env.port
 
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);
-    
+
 })

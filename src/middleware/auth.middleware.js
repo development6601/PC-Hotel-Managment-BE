@@ -13,7 +13,7 @@ async function authMiddleware(req, res, next) {
             token = req.headers.authorization.split(" ")[1];
         }
         if (!token) {
-            return res.status(401).json({ message: "Unauthorized - No Token Found" });
+            return res.status(401).json({ message: "Unauthorized -Login First" });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await authModel.findById(decoded.userId);
