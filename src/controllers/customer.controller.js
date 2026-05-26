@@ -62,6 +62,60 @@ async function getCustomerDetail(req, res) {
 }
 
 async function updateCustomer(req, res) {
+  try {
+    const { phoneNumber, gender, address, idProofNumber } = req.body;
+
+    const userId = req.user._id;
+    const image = req.file;
+
+    const authUpdateData = {};
+
+    if (image) {
+      authUpdateData.profileImg = image.filename;
+    }
+
+    const user = await authModel.findByIdAndUpdate(
+      userId,
+      { $set: authUpdateData },
+      { returnDocument: "after" },
+    );
+
+    const customer = await customerModel.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          email: user.email,
+          phoneNumber,
+          gender,
+          address,
+          idProofNumber,
+        },
+      },
+      {
+        returnDocument: "after",
+        upsert: true,
+      },
+    );
+
+    return res.status(200).json({
+      message: "Customer Updated Successfully",
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        profileImg: user.profileImg,
+        phoneNumber: customer.phoneNumber,
+        gender: customer.gender,
+        address: customer.address,
+        idProofNumber: customer.idProofNumber,
+      },
+    });
+  } catch (error) {
+    console.log("UPDATE ERROR:", error.message);
+
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
 }
 
 
@@ -95,4 +149,4 @@ async function getAllCustomer(req, res) {
   }
 }
 
-module.exports = { customerDetail, getCustomerDetail, updateCustomer ,getAllCustomer};
+module.exports = { customerDetail, getCustomerDetail, updateCustomer, getAllCustomer };
