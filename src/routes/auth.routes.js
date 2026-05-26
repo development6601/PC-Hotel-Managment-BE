@@ -1,7 +1,7 @@
 // const { validationRegister, loginRegister } = require('../validation/auth.validation')
 
 const express = require('express')
-const { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail, myInfo } = require('../controllers/auth.controller')
+const { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail, myInfo, changePassword } = require('../controllers/auth.controller')
 const authMiddleware = require('../middleware/auth.middleware')
 
 const multer = require('multer')
@@ -40,5 +40,7 @@ router.get('/getAllDetail', getAllDetail)
 router.get('/AdminDashoard', authMiddleware, adminDashboard)
 
 router.get('/myInfo',authMiddleware,myInfo)
+
+router.put("/changePassword",authMiddleware,changePassword);
 
 module.exports = router 

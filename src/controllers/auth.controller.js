@@ -151,5 +151,43 @@ async function myInfo(req, res) {
 
 }
 
+async function changePassword(req, res) {
+  try {
+    const { oldPassword, newPassword } = req.body;
 
-module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail, myInfo }
+    const userId = req.user._id;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
+
+    const user = await authModel.findById(userId);
+
+    const isMatch = await bcrypt.compare(oldPassword,user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Old password is incorrect",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
+
+module.exports = { userRegister, userLogin, userLogOut, forgetPassword, uploadImage, getAllDetail, myInfo,changePassword }
