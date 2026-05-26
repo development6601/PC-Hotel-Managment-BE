@@ -188,11 +188,28 @@ async function roomIsAvailable(req, res) {
     }
 }
 
+async function getRoomById(req,res){
+    try {
+        const {id} = req.params
+        const room = await roomModel.findById(id)
+
+        res.status(200).json({
+            room
+        })
+    } catch (error) {
+        console.log(error.message);
+        
+        
+    }
+
+}
+
 
 module.exports = {
     createRoom,
     getALLRoom,
     deleteRoombyId,
     updateRoom,
-    roomIsAvailable
+    roomIsAvailable,
+    getRoomById
 }

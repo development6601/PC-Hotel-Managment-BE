@@ -1,5 +1,5 @@
 const express = require('express')
-const { createRoom, getALLRoom, deleteRoombyId, updateRoom, roomIsAvailable } = require('../controllers/room.controller')
+const { createRoom, getALLRoom, deleteRoombyId, updateRoom, roomIsAvailable, getRoomById } = require('../controllers/room.controller')
 
 const authMiddleware = require('../middleware/auth.middleware')
 
@@ -32,5 +32,6 @@ router.put('/updateRoom/:id', upload.single('image'), updateRoom)
 
 router.post('/roomIsAvailable',authMiddleware,roomIsAvailable)
 
+router.get('/getRoomById/:id',authMiddleware,getRoomById)
 
 module.exports = router
